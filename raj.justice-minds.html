@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dove Flying Animation (Mobile Responsive)</title>
+    <title>Justice Minds Interactive Cube</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -24,14 +25,77 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            position: relative;
+        }
+
+        .intro-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            animation: smoothIn 6s ease-in-out forwards 2s, smoothOut 4s ease-in-out forwards 10s;
+        }
+
+        @keyframes smoothIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes smoothOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        .title {
+            color: #fff;
+            font-size: 120px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 10px;
+            z-index: 10;
+            opacity: 0;
+            animation: fadeInTitle 5s 15s forwards;
+        }
+
+        @keyframes fadeInTitle {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
 
         .scene {
-            width: 50vw;
-            height: 50vw;
+            width: 300px;
+            height: 300px;
             perspective: 1000px;
-            position: relative;
+            opacity: 0;
+            animation: fadeInCube 5s 15s forwards;
+        }
+
+        @keyframes fadeInCube {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .cube {
@@ -39,6 +103,7 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
+            animation: rotate 30s infinite linear;
         }
 
         .cube__face {
@@ -57,16 +122,109 @@
             opacity: 0.95;
         }
 
+        .cube__face--front img {
+            width: 80%;
+            height: 80%;
+            object-fit: cover;
+            animation: glitch 0.5s ease-in-out infinite alternate 33s, fadeOutCubeGIF 5s forwards 38s;
+        }
+
+        .cube__face--front .glass-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            transform: translate(-50%, -50%);
+            animation: growGlass 10s forwards 40s;
+            z-index: 1;
+        }
+
+        @keyframes growGlass {
+            0% {
+                width: 0;
+                height: 0;
+            }
+            100% {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        .cube__face--front.morph-back {
+            display: none;
+            background: linear-gradient(45deg, #000, #555);
+            animation: morphBack 5s forwards 43s;
+        }
+
+        .cube__face--front .justice-minds-text {
+            display: none;
+            font-size: 36px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.85);
+            animation: fadeInText 2s ease-in-out forwards 45s;
+        }
+
+        @keyframes fadeInText {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: scale(1) skew(0);
+            }
+            25% {
+                transform: scale(1.1) skew(5deg);
+            }
+            50% {
+                transform: scale(1.05) skew(-5deg);
+            }
+            75% {
+                transform: scale(1.1) skew(5deg);
+            }
+            100% {
+                transform: scale(1) skew(0);
+            }
+        }
+
+        @keyframes fadeOutCubeGIF {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes morphBack {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .cube__face--front {
             transform: rotateY(0deg) translateZ(150px);
         }
 
-        .cube__face--back {
-            transform: rotateY(180deg) translateZ(150px);
-        }
-
         .cube__face--right {
             transform: rotateY(90deg) translateZ(150px);
+        }
+
+        .cube__face--back {
+            transform: rotateY(180deg) translateZ(150px);
         }
 
         .cube__face--left {
@@ -81,64 +239,107 @@
             transform: rotateX(-90deg) translateZ(150px);
         }
 
-        /* Dove animation */
-        .dove {
+        .floating {
             position: absolute;
-            width: 50%;
-            height: auto;
-            bottom: -100px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: transparent;
+            border-radius: 10px;
             opacity: 0;
-            animation: flyUp 8s ease-in-out forwards;
+            animation: pulse 2s infinite alternate, floatOut 15s ease-in 25s forwards, turnToSmoke 3s forwards 40s;
         }
 
-        @keyframes flyUp {
+        .floating img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .floating-left {
+            animation-name: pulse, floatLeft, turnToSmoke;
+            z-index: -1;
+        }
+
+        .floating-right {
+            animation-name: pulse, floatRight, turnToSmoke;
+            z-index: -1;
+        }
+
+        @keyframes floatLeft {
             0% {
-                bottom: -100px;
+                transform: translate(-50%, -50%) scale(0.5);
                 opacity: 0;
-                transform: translateX(-50%) scale(0.5);
             }
-            30% {
-                bottom: 50vh;
+            50% {
                 opacity: 1;
-                transform: translateX(-50%) scale(1);
-            }
-            60% {
-                bottom: 60vh;
-                opacity: 1;
-                transform: translateX(-50%) scale(1.1);
+                z-index: 10;
             }
             100% {
-                bottom: 80vh;
+                transform: translate(-300%, -50%);
                 opacity: 0;
-                transform: translateX(-50%) scale(0.7);
             }
         }
 
-        /* Final sealing effect */
-        .cube__face--front.seal {
-            animation: sealCube 3s ease-in-out forwards 9s;
-        }
-
-        @keyframes sealCube {
+        @keyframes floatRight {
             0% {
-                transform: rotateY(0deg) translateZ(150px);
-                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+                z-index: 10;
             }
             100% {
-                transform: rotateY(0deg) translateZ(150px);
+                transform: translate(300%, -50%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes turnToSmoke {
+            0% {
+                filter: blur(0);
                 opacity: 1;
+            }
+            100% {
+                filter: blur(10px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotateX(0) rotateY(0);
+            }
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
             }
         }
 
         .message {
-            color: white;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.85);
             font-size: 16px;
             text-align: center;
-            margin-top: 30px;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.6;
             opacity: 0;
-            animation: fadeInMessage 3s forwards 12s;
+            animation: fadeInMessage 5s 43s forwards;
+        }
+
+        .message br + br {
+            margin-top: 10px;
         }
 
         @keyframes fadeInMessage {
@@ -159,60 +360,52 @@
             width: 100%;
             font-family: 'Space Grotesk', sans-serif;
         }
-
-        /* Mobile responsive adjustments */
-        @media (max-width: 768px) {
-            .scene {
-                width: 60vw;
-                height: 60vw;
-            }
-
-            .dove {
-                width: 40%;
-            }
-
-            .message {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .scene {
-                width: 70vw;
-                height: 70vw;
-            }
-
-            .dove {
-                width: 50%;
-            }
-
-            .message {
-                font-size: 12px;
-            }
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Cube -->
+        <!-- Intro Images for Ben and Raj -->
+        <img class="intro-img intro-img-ben" src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJB7g8ek5wmAGGHtLMsP4nGSY4LhtvBfycX3CWQees1h9KezrGVxXkcLtWo17FkQPEj1Sfrri1dXAxDff71Za6NqBjrhr1V6sZQp9npz86H9db2ZCWZdDXrhWamC75fSnp8f5dEDtTxBieRMYaHigeJPfc3KrX98MvDWFHusussQyA7wtshQdTruLcqooDyoyn7Cp9k/CleanShot%202024-10-17%20at%2002.24.03.jpg"
+            alt="Ben Image">
+        <img class="intro-img intro-img-raj" src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDeJZaekE1MEKTan3PpSPjJhRggXK1s7qb4PAcwc99Usu88HqKL5KuybEF3vzBRK9JfvfnRTzLkRtREsBPAFDRVuiGR9gSNB9rWujno7rBPW2XM3qRq4XqhzzitpgWgnQP84EURsJHB7Aj9v8UqzNPHxiNWVb1p2djZrGvEebBp5VuCWxptbKd3dwZWcDWD6AcELeF/CleanShot%202024-10-17%20at%2002.17.46.jpg"
+            alt="Raj Image">
+
+        <!-- Title and Cube -->
+        <div class="title">JUSTICE MINDS</div>
         <div class="scene">
             <div class="cube">
-                <div class="cube__face cube__face--front">TRUTH</div>
-                <div class="cube__face cube__face--back">JUSTICE</div>
-                <div class="cube__face cube__face--right">INTEGRITY</div>
-                <div class="cube__face cube__face--left">EQUALITY</div>
-                <div class="cube__face cube__face--top">FAIRNESS</div>
-                <div class="cube__face cube__face--bottom">HONOR</div>
+                <div class="cube__face cube__face--front fade-out-final-images">
+                    <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDHAknexo16dZVPR1vv7DCTrfUR9o8KwsYQWEeW68L7tZcVdGjhvD4o6T33AkcHe7KnMx7tDge5WBD8karriiWT1BsTNSCzqjWrGd2Nyov6rnD4Z1cW27of3PCLpK3eVMRqy61roiz2uqpcWPSH7ivnrBR2PFxK1qiwECifT73QUabD5a6h1HJcpiUFYn5SJUQXE6p/CleanShot%202024-10-17%20at%2002.01.02.jpg"
+                        alt="GIF">
+                    <div class="justice-minds-text">JUSTICE MINDS</div>
+                    <!-- Glass effect -->
+                    <div class="glass-effect"></div>
+                </div>
+                <div class="cube__face cube__face--back">TRUTH</div>
+                <div class="cube__face cube__face--right">FAIRNESS</div>
+                <div class="cube__face cube__face--left">JUST</div>
+                <div class="cube__face cube__face--top">INTEGRITY</div>
+                <div class="cube__face cube__face--bottom">EQUALITY</div>
+            </div>
+
+            <!-- Floating cards for Ben and Raj -->
+            <div class="floating floating-left">
+                <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJB7g8ek5wmAGGHtLMsP4nGSY4LhtvBfycX3CWQees1h9KezrGVxXkcLtWo17FkQPEj1Sfrri1dXAxDff71Za6NqBjrhr1V6sZQp9npz86H9db2ZCWZdDXrhWamC75fSnp8f5dEDtTxBieRMYaHigeJPfc3KrX98MvDWFHusussQyA7wtshQdTruLcqooDyoyn7Cp9k/CleanShot%202024-10-17%20at%2002.24.03.jpg"
+                    alt="Ben Image">
+            </div>
+            <div class="floating floating-right">
+                <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDeJZaekE1MEKTan3PpSPjJhRggXK1s7qb4PAcwc99Usu88HqKL5KuybEF3vzBRK9JfvfnRTzLkRtREsBPAFDRVuiGR9gSNB9rWujno7rBPW2XM3qRq4XqhzzitpgWgnQP84EURsJHB7Aj9v8UqzNPHxiNWVb1p2djZrGvEebBp5VuCWxptbKd3dwZWcDWD6AcELeF/CleanShot%202024-10-17%20at%2002.17.46.jpg"
+                    alt="Raj Image">
             </div>
         </div>
 
-        <!-- Dove Image -->
-        <img src="https://www.pngall.com/wp-content/uploads/5/Dove-Bird-PNG-File.png" alt="Dove" class="dove">
-
-        <!-- Message -->
         <div class="message">
-            Thank you for watching!
+            Thank you for your time.<br>
+            On behalf of Justice Minds, Ben Mak, Brighton and London...<br>
+            WE WISH YOU ALL THE BEST ON YOUR JOURNEY, have a safe trip back to India!!<br><br>
+            2022-2024<br>
+            RAJ KUMAR THORAT
         </div>
 
     </div>
