@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced HTML Editor with Inspect-like View</title>
+    <style>
+        :root {
+            --background-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --accent-color: #0071e3;
+            --border-color: #3a3a3a;
+            --toolbar-color: #2c2c2c;
+            --tag-color: #569cd6;
+            --attribute-color: #9cdcfe;
+            --string-color: #ce9178;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        #container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #editor-container, #preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #editor, #preview {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        #editor {
+            font-family: 'SF Mono', monospace;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            border: none;
+            resize: none;
+            white-space: pre-wrap;
+        }
+        #preview {
+            background-color: #ffffff;
+            color: #000000;
+            overflow: hidden;
+        }
+        .toolbar {
+            padding: 10px 20px;
+            background-color: var(--toolbar-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0077ed;
+        }
+        #resizer {
+            width: 1px;
+            background-color: var(--border-color);
+            cursor: col-resize;
+        }
+        .toggle-btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .toggle-btn.active {
+            background-color: var(--accent-color);
+        }
+        .tag {
+            color: var(--tag-color);
+        }
+        .attribute {
+            color: var(--attribute-color);
+        }
+        .string {
+            color: var(--string-color);
+        }
+        .device-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .device-btn:hover {
+            background-color: #0077ed;
+        }
+        #preview-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="editor-container">
+            <div class="toolbar">
+                <button class="toggle-btn active" onclick="toggleView('editor')">Editor</button>
+                <button class="toggle-btn" onclick="toggleView('preview')">Preview</button>
+                <button onclick="formatCode()">Format Code</button>
+                <button onclick="saveAsHTML()">Save as HTML</button>
+            </div>
+            <div id="editor" contenteditable="true" spellcheck="false"></div>
+        </div>
+        <div id="resizer"></div>
+        <div id="preview-container">
+            <div class="toolbar">
+                <button class="device-btn" onclick="changeDevice('iphone')">iPhone</button>
+                <button class="device-btn" onclick="changeDevice('laptop')">Laptop</button>
+                <button class="device-btn" onclick="changeDevice('tv')">TV</button>
+                <button onclick="captureScreenshot()">Download Visual</button>
+            </div>
+            <iframe id="iframe-preview"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const iframePreview = document.getElementById('iframe-preview');
+
+        function updatePreview() {
+            const content = editor.innerText;
+            iframePreview.srcdoc = content;
+        }
+
+        function formatCode() {
+            const content = editor.innerText;
+            const formatted = formatHTML(content);
+            editor.innerText = formatted;
+            updatePreview();
+        }
+
+        function formatHTML(html) {
+            let formatted = '';
+            let indent = 0;
+            const tab = '    ';
+            html.split(/>\s*</).forEach(element => {
+                if (element.match(/^\/\w/)) indent--;
+                formatted += tab.repeat(indent) + '<' + element + '>\n';
+                if (element.match(/^<?\w[^>]*[^\/]$/) && !element.startsWith("input")) indent++;
+            });
+            return formatted.trim();
+        }
+
+        function saveAsHTML() {
+            const content = editor.innerText;
+            const blob = new Blob([content], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'generated_page.html';
+            a.click();
+        }
+
+        function toggleView(view) {
+            const editorContainer = document.getElementById('editor-container');
+            const previewContainer = document.getElementById('preview-container');
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+
+            if (view === 'editor') {
+                editorContainer.style.display = 'flex';
+                previewContainer.style.display = 'none';
+            } else {
+                editorContainer.style.display = 'none';
+                previewContainer.style.display = 'flex';
+            }
+
+            toggleBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function changeDevice(device) {
+            if (device === 'iphone') {
+                iframePreview.style.width = '375px';
+                iframePreview.style.height = '812px';
+            } else if (device === 'laptop') {
+                iframePreview.style.width = '1366px';
+                iframePreview.style.height = '768px';
+            } else if (device === 'tv') {
+                iframePreview.style.width = '1920px';
+                iframePreview.style.height = '1080px';
+            }
+        }
+
+        function captureScreenshot() {
+            html2canvas(iframePreview.contentWindow.document.body).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = imgData;
+                a.download = 'preview-screenshot.png';
+                a.click();
+            });
+        }
+
+        // Set up resizing functionality
+        let isResizing = false;
+        const resizer = document.getElementById('resizer');
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', () => {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleMouseMove);
+            });
+        });
+
+        function handleMouseMove(e) {
+            if (!isResizing) return;
+            const containerRect = container.getBoundingClientRect();
+            const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+            editor.parentElement.style.width = `${percentage}%`;
+            preview.parentElement.style.width = `${100 - percentage}%`;
+        }
+
+        editor.addEventListener('input', updatePreview);
+        editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+
+        // Initialize with sample content
+        editor.innerText = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Page</title>
+</head>
+<body>
+    <h1>Welcome to the Advanced HTML Editor</h1>
+    <p>This is a live preview of your HTML code.</p>
+    <ul>
+        <li>Edit the code on the left</li>
+        <li>See the results on the right</li>
+        <li>Toggle between views</li>
+        <li>Enjoy coding!</li>
+    </ul>
+</body>
+</html>
+        `;
+        updatePreview();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+</body>
+</html>
