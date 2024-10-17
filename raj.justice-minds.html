@@ -1,0 +1,431 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justice Minds Interactive Cube</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            perspective: 1000px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .intro-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            animation: smoothIn 6s ease-in-out forwards 2s, smoothOut 4s ease-in-out forwards 10s;
+        }
+
+        @keyframes smoothIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes smoothOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        .title {
+            color: #fff;
+            font-size: 120px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 10px;
+            z-index: 10;
+            opacity: 0;
+            animation: fadeInTitle 5s 15s forwards;
+        }
+
+        @keyframes fadeInTitle {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .scene {
+            width: 300px;
+            height: 300px;
+            perspective: 1000px;
+            opacity: 0;
+            animation: fadeInCube 5s 15s forwards;
+        }
+
+        @keyframes fadeInCube {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 30s infinite linear;
+        }
+
+        .cube__face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000000, #333333);
+            border: 2px solid #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3) inset;
+            opacity: 0.95;
+        }
+
+        .cube__face--front img {
+            width: 80%;
+            height: 80%;
+            object-fit: cover;
+            animation: glitch 0.5s ease-in-out infinite alternate 33s, fadeOutCubeGIF 5s forwards 35s;
+        }
+
+        .cube__face--front .glass-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            transform: translate(-50%, -50%);
+            animation: growGlass 10s forwards 36s;
+            z-index: 1;
+        }
+
+        @keyframes growGlass {
+            0% {
+                width: 0;
+                height: 0;
+            }
+            100% {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        .cube__face--front.morph-back {
+            display: none;
+            background: linear-gradient(45deg, #000, #555);
+            animation: morphBack 5s forwards 40s;
+        }
+
+        .cube__face--front .justice-minds-text {
+            display: none;
+            font-size: 36px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.85);
+            animation: fadeInText 2s ease-in-out forwards 42s;
+        }
+
+        @keyframes fadeInText {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: scale(1) skew(0);
+            }
+            25% {
+                transform: scale(1.1) skew(5deg);
+            }
+            50% {
+                transform: scale(1.05) skew(-5deg);
+            }
+            75% {
+                transform: scale(1.1) skew(5deg);
+            }
+            100% {
+                transform: scale(1) skew(0);
+            }
+        }
+
+        @keyframes fadeOutCubeGIF {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes morphBack {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cube__face--front {
+            transform: rotateY(0deg) translateZ(150px);
+        }
+
+        .cube__face--right {
+            transform: rotateY(90deg) translateZ(150px);
+        }
+
+        .cube__face--back {
+            transform: rotateY(180deg) translateZ(150px);
+        }
+
+        .cube__face--left {
+            transform: rotateY(-90deg) translateZ(150px);
+        }
+
+        .cube__face--top {
+            transform: rotateX(90deg) translateZ(150px);
+        }
+
+        .cube__face--bottom {
+            transform: rotateX(-90deg) translateZ(150px);
+        }
+
+        .floating {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: transparent;
+            border-radius: 10px;
+            opacity: 0;
+            animation: pulse 2s infinite alternate, floatOut 15s ease-in 25s forwards, turnToSmoke 3s forwards 40s;
+        }
+
+        .floating img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .floating-left {
+            animation-name: pulse, floatLeft, turnToSmoke;
+            z-index: -1;
+        }
+
+        .floating-right {
+            animation-name: pulse, floatRight, turnToSmoke;
+            z-index: -1;
+        }
+
+        @keyframes floatLeft {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+                z-index: 10;
+            }
+            100% {
+                transform: translate(-300%, -50%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatRight {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+                z-index: 10;
+            }
+            100% {
+                transform: translate(300%, -50%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes turnToSmoke {
+            0% {
+                filter: blur(0);
+                opacity: 1;
+            }
+            100% {
+                filter: blur(10px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotateX(0) rotateY(0);
+            }
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        /* Fade-out Ben and Raj images when the cube rotates forward */
+        .fade-out-final-images {
+            animation: fadeOutFinalImages 2s ease-in-out forwards 33s;
+        }
+
+        @keyframes fadeOutFinalImages {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .message {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 16px;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInMessage 5s 40s forwards;
+        }
+
+        .message br + br {
+            margin-top: 10px;
+        }
+
+        @keyframes fadeInMessage {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .copyright {
+            position: absolute;
+            bottom: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            text-align: center;
+            width: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Intro Images for Ben and Raj -->
+        <img class="intro-img intro-img-ben" src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJB7g8ek5wmAGGHtLMsP4nGSY4LhtvBfycX3CWQees1h9KezrGVxXkcLtWo17FkQPEj1Sfrri1dXAxDff71Za6NqBjrhr1V6sZQp9npz86H9db2ZCWZdDXrhWamC75fSnp8f5dEDtTxBieRMYaHigeJPfc3KrX98MvDWFHusussQyA7wtshQdTruLcqooDyoyn7Cp9k/CleanShot%202024-10-17%20at%2002.24.03.jpg"
+            alt="Ben Image">
+        <img class="intro-img intro-img-raj" src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDeJZaekE1MEKTan3PpSPjJhRggXK1s7qb4PAcwc99Usu88HqKL5KuybEF3vzBRK9JfvfnRTzLkRtREsBPAFDRVuiGR9gSNB9rWujno7rBPW2XM3qRq4XqhzzitpgWgnQP84EURsJHB7Aj9v8UqzNPHxiNWVb1p2djZrGvEebBp5VuCWxptbKd3dwZWcDWD6AcELeF/CleanShot%202024-10-17%20at%2002.17.46.jpg"
+            alt="Raj Image">
+
+        <!-- Title and Cube -->
+        <div class="title">JUSTICE MINDS</div>
+        <div class="scene">
+            <div class="cube">
+                <div class="cube__face cube__face--front fade-out-final-images">
+                    <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDHAknexo16dZVPR1vv7DCTrfUR9o8KwsYQWEeW68L7tZcVdGjhvD4o6T33AkcHe7KnMx7tDge5WBD8karriiWT1BsTNSCzqjWrGd2Nyov6rnD4Z1cW27of3PCLpK3eVMRqy61roiz2uqpcWPSH7ivnrBR2PFxK1qiwECifT73QUabD5a6h1HJcpiUFYn5SJUQXE6p/CleanShot%202024-10-17%20at%2002.01.02.jpg"
+                        alt="GIF">
+                    <div class="justice-minds-text">JUSTICE MINDS</div>
+                    <!-- Glass effect -->
+                    <div class="glass-effect"></div>
+                </div>
+                <div class="cube__face cube__face--back">TRUTH</div>
+                <div class="cube__face cube__face--right">FAIRNESS</div>
+                <div class="cube__face cube__face--left">JUST</div>
+                <div class="cube__face cube__face--top">INTEGRITY</div>
+                <div class="cube__face cube__face--bottom">EQUALITY</div>
+            </div>
+
+            <!-- Floating cards for Ben and Raj -->
+            <div class="floating floating-left">
+                <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJB7g8ek5wmAGGHtLMsP4nGSY4LhtvBfycX3CWQees1h9KezrGVxXkcLtWo17FkQPEj1Sfrri1dXAxDff71Za6NqBjrhr1V6sZQp9npz86H9db2ZCWZdDXrhWamC75fSnp8f5dEDtTxBieRMYaHigeJPfc3KrX98MvDWFHusussQyA7wtshQdTruLcqooDyoyn7Cp9k/CleanShot%202024-10-17%20at%2002.24.03.jpg"
+                    alt="Ben Image">
+            </div>
+            <div class="floating floating-right">
+                <img src="https://secure-res.craft.do/v2/22WWGqY2358TMah9PqKBuc8MtrSDHs6jBqzYD9Z3NitZELT7toGUGSJj52cWufi6CTwhu21R8SifToX8YCGU1DVoGzwH96i7ni8NYrFXtZ8R6zykX6nptxToYSZXzksuKqH9pLwf78hapqKzr6YJbPouJDeJZaekE1MEKTan3PpSPjJhRggXK1s7qb4PAcwc99Usu88HqKL5KuybEF3vzBRK9JfvfnRTzLkRtREsBPAFDRVuiGR9gSNB9rWujno7rBPW2XM3qRq4XqhzzitpgWgnQP84EURsJHB7Aj9v8UqzNPHxiNWVb1p2djZrGvEebBp5VuCWxptbKd3dwZWcDWD6AcELeF/CleanShot%202024-10-17%20at%2002.17.46.jpg"
+                    alt="Raj Image">
+            </div>
+        </div>
+
+        <div class="message">
+            Thank you for your time.<br>
+            On behalf of Justice Minds, Ben Mak, Brighton and London...<br>
+            WE WISH YOU ALL THE BEST ON YOUR JOURNEY, have a safe trip back to India!!<br><br>
+            2022-2024<br>
+            RAJ KUMAR THORAT
+        </div>
+
+    </div>
+
+    <div class="copyright">
+        © Justice Minds IX
+    </div>
+</body>
+
+</html>
