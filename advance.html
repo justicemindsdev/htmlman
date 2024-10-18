@@ -4,189 +4,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive HTML Editor with Sharing & Recording</title>
+    <title>Resizable AI HTML Editor</title>
     <style>
         :root {
-            --background-color: #1e1e1e;
-            --text-color: #d4d4d4;
-            --accent-color: #0071e3;
-            --border-color: #3a3a3a;
-            --toolbar-color: #2c2c2c;
-            --tag-color: #569cd6;
-            --attribute-color: #9cdcfe;
-            --string-color: #ce9178;
+            --bg-color: #1c1c1e;
+            --text-color: #ffffff;
+            --accent-color: #a35cff;
+            --secondary-bg: #2c2c2e;
         }
 
         body, html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            overflow: hidden;
         }
 
-        #container {
+        .container {
             display: flex;
             height: 100vh;
-            overflow: hidden;
+            position: relative;
         }
 
-        #editor-container, #preview-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        #editor, #preview {
-            flex: 1;
-            overflow: auto;
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-bg);
             padding: 20px;
-            box-sizing: border-box;
-            font-size: 14px;
-            line-height: 1.5;
+            overflow-y: auto;
+            border-right: 1px solid var(--accent-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 1000;
         }
 
-        #editor {
-            font-family: 'SF Mono', monospace;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            border: none;
-            resize: none;
-            white-space: pre-wrap;
-        }
-
-        #preview {
-            background-color: #ffffff;
-            color: #000000;
-        }
-
-        .toolbar {
-            padding: 10px 20px;
-            background-color: var(--toolbar-color);
-            border-bottom: 1px solid var(--border-color);
+        .main-content {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            width: calc(100% - 250px);
+            margin-left: 250px;
+            height: 100%;
         }
 
-        button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .editor-container,
+        .preview-container {
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--bg-color);
         }
 
-        button:hover {
-            background-color: #0077ed;
+        .editor-container {
+            width: 50%;
+            border-right: 1px solid var(--accent-color);
         }
 
-        #resizer {
-            width: 5px;
-            background-color: var(--border-color);
-            cursor: col-resize;
+        .preview-container {
+            width: 50%;
         }
 
-        #file-list {
-            display: flex;
-            flex-direction: column;
+        h1, h2 {
+            color: var(--accent-color);
+        }
+
+        #fileList {
             margin-top: 20px;
         }
 
         .file-item {
-            background-color: var(--toolbar-color);
+            background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 5px 10px;
-            margin: 5px 0;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .file-item.active {
+        .file-item:hover {
             background-color: var(--accent-color);
         }
 
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        textarea {
+            width: 100%;
+            height: calc(100% - 50px);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+            resize: none;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .scene {
-                width: 240px;
-                height: 240px;
-            }
-
-            .title {
-                font-size: 24px;
-                letter-spacing: 5px;
-            }
-
-            .message {
-                font-size: 14px;
-            }
+        button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
         }
 
-        @media (max-width: 480px) {
-            .scene {
-                width: 180px;
-                height: 180px;
-            }
+        #preview {
+            height: 100%;
+            background-color: var(--secondary-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
 
-            .title {
-                font-size: 20px;
-                letter-spacing: 2px;
-            }
-
-            .message {
-                font-size: 12px;
-            }
+        .resizer {
+            width: 5px;
+            cursor: ew-resize;
+            background-color: var(--accent-color);
+            z-index: 10;
         }
     </style>
 </head>
 
 <body>
-    <div id="container">
-        <!-- Left side toolbar and file system -->
-        <div id="editor-container">
-            <div class="toolbar">
-                <div class="buttons">
-                    <button id="saveBtn">💾 Save</button>
-                    <button id="uploadBtn">⬆️ Upload</button>
-                    <button id="deleteBtn">❌ Delete</button>
-                    <button id="shareBtn">📤 Share</button>
-                    <button id="inviteBtn">📨 Invite</button>
-                    <button id="iphoneBtn">📱 iPhone</button>
-                    <button id="laptopBtn">💻 Laptop</button>
-                    <button id="ipadBtn">📲 iPad</button>
-                    <button id="recordBtn">🔴 Record</button>
-                </div>
-            </div>
-
-            <div id="file-list"></div> <!-- Uploaded file list -->
-            <div id="editor" contenteditable="true" spellcheck="false"></div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>AI HTML Editor</h2>
+            <input type="file" id="fileInput" accept=".html,.css,.js,.png,.jpg,.jpeg,.gif" multiple>
+            <button onclick="uploadFiles()">Upload Files</button>
+            <div id="fileList"></div>
         </div>
-
-        <!-- Draggable resizer -->
-        <div id="resizer"></div>
-
-        <!-- Right side preview -->
-        <div id="preview-container">
-            <div class="toolbar">
+        <div class="main-content">
+            <div class="editor-container">
+                <textarea id="htmlEditor"></textarea>
+                <button onclick="updatePreview()">Update Preview</button>
                 <button onclick="saveAsHTML()">Save as HTML</button>
             </div>
-            <div id="preview"></div>
+            <div class="resizer" id="dragbar"></div>
+            <div class="preview-container">
+                <h2>Live Preview</h2>
+                <div id="preview"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Add file system functionality, adjustable preview screen, and record user interaction
+        let files = {};
+        let currentFile = '';
+
+        function uploadFiles() {
+            const fileInput = document.getElementById('fileInput');
+            for (let file of fileInput.files) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    files[file.name] = e.target.result;
+                    updateFileList();
+                    loadFile(file.name);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            for (let fileName in files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'file-name';
+                nameSpan.textContent = fileName;
+                nameSpan.onclick = () => loadFile(fileName);
+
+                fileItem.appendChild(nameSpan);
+                fileList.appendChild(fileItem);
+            }
+        }
+
+        function loadFile(fileName) {
+            currentFile = fileName;
+            const editor = document.getElementById('htmlEditor');
+            editor.value = files[fileName];
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const editor = document.getElementById('htmlEditor');
+            const preview = document.getElementById('preview');
+            preview.innerHTML = editor.value;
+
+            if (currentFile) {
+                files[currentFile] = editor.value;
+            }
+        }
+
+        function saveAsHTML() {
+            if (!currentFile) return;
+            const blob = new Blob([files[currentFile]], { type: "text/html" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = currentFile;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Resizing functionality
+        const dragbar = document.getElementById("dragbar");
+        const editorContainer = document.querySelector(".editor-container");
+        const previewContainer = document.querySelector(".preview-container");
+
+        dragbar.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            document.addEventListener("mousemove", resize);
+            document.addEventListener("mouseup", stopResize);
+        });
+
+        function resize(e) {
+            const percentage = ((e.pageX / window.innerWidth) * 100);
+            editorContainer.style.width = `${percentage}%`;
+            previewContainer.style.width = `${100 - percentage}%`;
+        }
+
+        function stopResize() {
+            document.removeEventListener("mousemove", resize);
+        }
     </script>
 </body>
 
