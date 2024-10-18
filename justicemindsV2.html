@@ -1,0 +1,314 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICE MINDS: Data-Driven Advocacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(circle, rgba(0, 0, 0, 1) 30%, rgba(20, 20, 20, 1) 100%);
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+            letter-spacing: 10px;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(-50px);
+            text-align: center;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            text-align: center;
+            max-width: 80%;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .shape-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .shape-button {
+            width: 50px;
+            height: 50px;
+            border: 1px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .shape-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+                letter-spacing: 5px;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .shape-buttons {
+                bottom: 10px;
+            }
+
+            .shape-button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="1261" height="823" style="width: 1261px; height: 823px;"></canvas>
+    <div class="container">
+        <h1 class="title" style="transform: translate(0px, 0px); opacity: 1;">JUSTICE MINDS</h1>
+        <p class="tagline" style="opacity: 1;">Data-Driven Advocacy</p>
+        <div class="shape-buttons">
+            <div class="shape-button" onclick="transformShape('circle')">○</div>
+            <div class="shape-button" onclick="transformShape('nine')">9</div>
+            <div class="shape-button" onclick="transformShape('square')">□</div>
+            <div class="shape-button" onclick="transformShape('heart')">♡</div>
+            <div class="shape-button" onclick="transformShape('ix')">IX</div>
+        </div>
+    </div>
+
+    <script>
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Particle system
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCnt = 20000;
+        const posArray = new Float32Array(particlesCnt * 3);
+        const colorArray = new Float32Array(particlesCnt * 3);
+        const sizeArray = new Float32Array(particlesCnt);
+
+        for (let i = 0; i < particlesCnt * 3; i += 3) {
+            posArray[i] = (Math.random() - 0.5) * 5;
+            posArray[i + 1] = (Math.random() - 0.5) * 5;
+            posArray[i + 2] = (Math.random() - 0.5) * 5;
+
+            colorArray[i] = 0.5;
+            colorArray[i + 1] = 0.5;
+            colorArray[i + 2] = 0.5;
+
+            sizeArray[i / 3] = Math.random() * 0.03 + 0.005;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+        particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizeArray, 1));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true,
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Camera position
+        camera.position.z = 5;
+
+        // Mouse movement
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        let currentShape = '';
+
+        function transformShape(shape) {
+            currentShape = shape;
+            const positions = particlesGeometry.attributes.position.array;
+            for (let i = 0; i < particlesCnt; i++) {
+                const i3 = i * 3;
+                let x, y, z;
+                
+                switch(shape) {
+                    case 'circle':
+                        const angle = (i / particlesCnt) * Math.PI * 2;
+                        const radius = 2;
+                        x = Math.cos(angle) * radius;
+                        y = Math.sin(angle) * radius;
+                        z = 0;
+                        break;
+                    case 'nine':
+                        const t = i / particlesCnt;
+                        if (t < 0.6) {
+                            const circleAngle = t * Math.PI * 2 / 0.6;
+                            x = Math.cos(circleAngle) * 1.5;
+                            y = Math.sin(circleAngle) * 1.5 + 1;
+                        } else {
+                            x = 1.5 - (t - 0.6) * 3;
+                            y = -2 * (t - 0.6) * 5;
+                        }
+                        z = 0;
+                        break;
+                    case 'square':
+                        const side = 4;
+                        x = (Math.random() - 0.5) * side;
+                        y = (Math.random() - 0.5) * side;
+                        z = 0;
+                        break;
+                    case 'heart':
+                        const heartT = i / particlesCnt * Math.PI * 2;
+                        x = 16 * Math.pow(Math.sin(heartT), 3);
+                        y = 13 * Math.cos(heartT) - 5 * Math.cos(2 * heartT) - 2 * Math.cos(3 * heartT) - Math.cos(4 * heartT);
+                        x /= 16;
+                        y /= 16;
+                        z = 0;
+                        break;
+                    case 'ix':
+                        x = (Math.random() - 0.5) * 5;
+                        y = (Math.random() - 0.5) * 5;
+                        z = (Math.random() - 0.5) * 5;
+                        break;
+                }
+                
+                gsap.to(positions, {
+                    [i3]: x,
+                    [i3 + 1]: y,
+                    [i3 + 2]: z,
+                    duration: 2,
+                    ease: 'power2.inOut'
+                });
+            }
+        }
+
+        // Animation
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+
+            time += 0.005;
+
+            // Rotate particles
+            particlesMesh.rotation.y = time * 0.1;
+
+            // Update particle positions and colors
+            for (let i = 0; i < particlesCnt; i++) {
+                const i3 = i * 3;
+                const x = particlesGeometry.attributes.position.array[i3];
+                const y = particlesGeometry.attributes.position.array[i3 + 1];
+                const z = particlesGeometry.attributes.position.array[i3 + 2];
+
+                // Calculate distance from mouse
+                const mouseDistance = Math.sqrt(Math.pow(x - mouse.x * 2.5, 2) + Math.pow(y - mouse.y * 2.5, 2));
+
+                // Update color based on mouse proximity
+                const spotlightRadius = 1.5;
+                const colorIntensity = Math.max(0, 1 - mouseDistance / spotlightRadius);
+                const baseColor = 0.5;
+
+                particlesGeometry.attributes.color.array[i3] = baseColor + colorIntensity * 0.5;
+                particlesGeometry.attributes.color.array[i3 + 1] = baseColor + colorIntensity * 0.3;
+                particlesGeometry.attributes.color.array[i3 + 2] = baseColor + colorIntensity * 0.8;
+
+                // Special IX effect
+                if (currentShape === 'ix') {
+                    const waveX = Math.sin(time * 2 + y) * 0.1;
+                    const waveY = Math.cos(time * 2 + x) * 0.1;
+                    const waveZ = Math.sin(time * 3 + z) * 0.1;
+
+                    particlesGeometry.attributes.position.array[i3] = x + waveX;
+                    particlesGeometry.attributes.position.array[i3 + 1] = y + waveY;
+                    particlesGeometry.attributes.position.array[i3 + 2] = z + waveZ;
+
+                    // Enhance color pulsation
+                    const pulsation = (Math.sin(time * 5 + x * y * z) + 1) / 2;
+                    particlesGeometry.attributes.color.array[i3] += pulsation * 0.2;
+                    particlesGeometry.attributes.color.array[i3 + 1] += pulsation * 0.1;
+                    particlesGeometry.attributes.color.array[i3 + 2] += pulsation * 0.3;
+                }
+
+                // Vary particle size
+                particlesGeometry.attributes.size.array[i] = sizeArray[i] * (1 + Math.sin(time * 2 + i) * 0.5);
+
+                // Enhance particle size in spotlight
+                particlesGeometry.attributes.size.array[i] *= (1 + colorIntensity * 0.5);
+            }
+
+            particlesGeometry.attributes.position.needsUpdate = true;
+            particlesGeometry.attributes.color.needsUpdate = true;
+            particlesGeometry.attributes.size.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // GSAP Animations
+        gsap.to('.title', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
+        gsap.to('.tagline', { opacity: 1, duration: 1, delay: 0.5, ease: 'power3.out' });
+
+        // Responsive design
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+
+</body></html>
