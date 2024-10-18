@@ -1,0 +1,144 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Editor and Preview Tool</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        #editor-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90%;
+            font-family: monospace;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #preview-container {
+            width: 50%;
+            border-left: 2px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #resizer {
+            width: 5px;
+            background-color: #ddd;
+            cursor: ew-resize;
+            position: relative;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <!-- Editor Container -->
+        <div id="editor-container">
+            <h1>HTML Editor</h1>
+            <textarea id="editor" placeholder="Write your HTML code here..."></textarea>
+            <div>
+                <button onclick="saveAsHTML()">Save as HTML File</button>
+            </div>
+        </div>
+
+        <!-- Resizable Bar -->
+        <div id="resizer"></div>
+
+        <!-- Preview Container -->
+        <div id="preview-container">
+            <h1 style="text-align: center;">Live Preview</h1>
+            <iframe id="preview"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Save HTML function
+        function saveAsHTML() {
+            const content = document.getElementById('editor').value;
+            const blob = new Blob([content], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'generated_page.html';
+            a.click();
+        }
+
+        // Live preview function
+        function renderHTML() {
+            const content = document.getElementById('editor').value;
+            const previewFrame = document.getElementById('preview');
+            previewFrame.srcdoc = content;
+        }
+
+        // Automatically update preview on input
+        document.getElementById('editor').addEventListener('input', renderHTML);
+
+        // Resizing logic
+        const resizer = document.getElementById('resizer');
+        const leftPanel = document.getElementById('editor-container');
+        const rightPanel = document.getElementById('preview-container');
+
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isResizing) {
+                const containerWidth = document.getElementById('container').offsetWidth;
+                const newWidth = e.clientX / containerWidth * 100;
+
+                // Set new width for the editor container
+                leftPanel.style.width = `${newWidth}%`;
+                rightPanel.style.width = `${100 - newWidth}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+        });
+    </script>
+
+
+
+
+</body></html>
