@@ -1,0 +1,213 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaustubh's Review Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1c1c1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .input-section, .controls-section {
+            margin-bottom: 20px;
+        }
+        #htmlInput {
+            width: 100%;
+            height: 100px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            border: 1px solid #4a4a4a;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button, select {
+            background-color: #0a84ff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .review-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .review-card {
+            background-color: #2c2c2e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-name {
+            font-weight: bold;
+        }
+        .user-country {
+            font-size: 0.9em;
+            color: #a0a0a0;
+            display: flex;
+            align-items: center;
+        }
+        .country-flag {
+            width: 20px;
+            height: auto;
+            margin-right: 5px;
+        }
+        .review-rating {
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        .review-text {
+            margin-bottom: 10px;
+        }
+        .review-date {
+            font-size: 0.8em;
+            color: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <textarea id="htmlInput" placeholder="Paste HTML here"></textarea>
+            <button id="parseButton">Parse HTML</button>
+        </div>
+        <div class="controls-section">
+            <button id="toggleButton">Toggle Cards</button>
+            <select id="sortSelect">
+                <option value="date">Sort by Date</option>
+                <option value="rating">Sort by Rating</option>
+            </select>
+            <select id="filterSelect">
+                <option value="all">All Countries</option>
+            </select>
+        </div>
+        <div class="review-container" id="reviewContainer"></div>
+    </div>
+
+    <script>
+        let reviewData = [];
+        let cardsVisible = true;
+
+        function parseHTML() {
+            const htmlInput = document.getElementById('htmlInput').value;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlInput, 'text/html');
+            
+            const reviewItems = doc.querySelectorAll('.review-item-component');
+            reviewData = Array.from(reviewItems).map(item => {
+                const name = item.querySelector('.username b') ? item.querySelector('.username b').textContent.trim() : 'Unknown User';
+                const country = item.querySelector('.country-name') ? item.querySelector('.country-name').textContent.trim() : 'Unknown Country';
+                const flagSrc = item.querySelector('.country-flag') ? item.querySelector('.country-flag').src : '';
+                const rating = item.querySelector('.stars-container') ? item.querySelector('.stars-container').childElementCount : 5;
+                const text = item.querySelector('.review-description') ? item.querySelector('.review-description').textContent.trim() : '';
+                const date = item.querySelector('.review-date') ? item.querySelector('.review-date').textContent.trim() : 'Unknown Date';
+                const avatarSrc = item.querySelector('.profile-pict-img') ? item.querySelector('.profile-pict-img').src : '';
+                
+                return { name, country, flagSrc, rating, text, date, avatarSrc };
+            });
+
+            updateFilterOptions();
+            renderReviews();
+        }
+
+        function createReviewCard(review) {
+            return `
+                <div class="review-card">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img src="${review.avatarSrc}" alt="${review.name}">
+                        </div>
+                        <div>
+                            <div class="user-name">${review.name}</div>
+                            <div class="user-country">
+                                <img class="country-flag" src="${review.flagSrc}" alt="${review.country}">
+                                ${review.country}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-rating">★★★★★ ${review.rating}</div>
+                    <div class="review-text">${review.text}</div>
+                    <div class="review-date">${review.date}</div>
+                </div>
+            `;
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewContainer');
+            container.innerHTML = reviewData.map(createReviewCard).join('');
+        }
+
+        function toggleCards() {
+            const container = document.getElementById('reviewContainer');
+            cardsVisible = !cardsVisible;
+            container.style.display = cardsVisible ? 'grid' : 'none';
+        }
+
+        function updateFilterOptions() {
+            const filterSelect = document.getElementById('filterSelect');
+            const countries = [...new Set(reviewData.map(review => review.country))];
+            filterSelect.innerHTML = '<option value="all">All Countries</option>' +
+                countries.map(country => `<option value="${country}">${country}</option>`).join('');
+        }
+
+        function sortReviews() {
+            const sortSelect = document.getElementById('sortSelect');
+            const sortBy = sortSelect.value;
+            
+            reviewData.sort((a, b) => {
+                if (sortBy === 'date') {
+                    return new Date(b.date) - new Date(a.date);
+                } else if (sortBy === 'rating') {
+                    return b.rating - a.rating;
+                }
+            });
+
+            renderReviews();
+        }
+
+        function filterReviews() {
+            const filterSelect = document.getElementById('filterSelect');
+            const filterBy = filterSelect.value;
+            
+            const filteredReviews = filterBy === 'all' ? 
+                reviewData : 
+                reviewData.filter(review => review.country === filterBy);
+
+            const container = document.getElementById('reviewContainer');
+            container.innerHTML = filteredReviews.map(createReviewCard).join('');
+        }
+
+        document.getElementById('parseButton').addEventListener('click', parseHTML);
+        document.getElementById('toggleButton').addEventListener('click', toggleCards);
+        document.getElementById('sortSelect').addEventListener('change', sortReviews);
+        document.getElementById('filterSelect').addEventListener('change', filterReviews);
+    </script>
+
+
+</body></html>
