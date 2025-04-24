@@ -1,10 +1,3 @@
-To create a master page with all the listed HTML files on the left, you can build a layout using basic HTML and CSS. Here's an approach:
-
-1. **Create a container for the master page layout**, where the left section will hold the list of files, and the right section will display the content of each file.
-2. **Use `iframe` or `object` tags** to embed each HTML file in the right section. When you click on a link in the left section, the corresponding HTML file will load in the right section.
-
-Here's a rough structure in HTML:
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,17 +56,3 @@ Here's a rough structure in HTML:
     </script>
 </body>
 </html>
-```
-This code creates a master page with a navigation list on the left. When a link is clicked, it loads the corresponding HTML file into an iframe on the right.
-
-**Related queries:**
-
-```markdown
-How can I ensure the iframe content adjusts dynamically with different screen sizes?
-```
-```markdown
-How can I load all HTML pages dynamically from a folder without listing each file manually?
-```
-```markdown
-What are the security concerns when embedding multiple HTML files using iframes?
-```
